@@ -1,0 +1,646 @@
+<!-- frontend/index.html -->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Djera - The best car rental service in Libya. Rent cars easily in Tripoli and across Libya.">
+     <link rel="icon" href="icons8-car-100.png" type="image/x-icon">
+    <title>Djera - Car Rental Libya</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-lang="en">
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <span class="logo-text">Djera</span>
+                <span class="logo-dot">.</span>
+            </a>
+
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#home" class="nav-link active" data-i18n="nav_home">Home</a></li>
+                <li><a href="#cars" class="nav-link" data-i18n="nav_cars">Our Cars</a></li>
+                <li><a href="#how-it-works" class="nav-link" data-i18n="nav_how">How It Works</a></li>
+                <li><a href="#about" class="nav-link" data-i18n="nav_about">About</a></li>
+                <li><a href="#contact" class="nav-link" data-i18n="nav_contact">Contact</a></li>
+                <li><a href="#logout" class="nav-link" data-i18n="nav_logout">Logout</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <!-- Language Toggle -->
+                <button class="lang-toggle" id="langToggle" aria-label="Switch language">
+                    <span class="lang-text">عربي</span>
+                    <i class="fas fa-globe"></i>
+                </button>
+
+                <!-- Auth Buttons -->
+                <button class="btn btn-outline" id="loginBtn" data-i18n="login">Login</button>
+                <button class="btn btn-primary" id="registerBtn" data-i18n="register">Register</button>
+
+                <!-- User Menu (hidden by default) -->
+                <div class="user-menu hidden" id="userMenu">
+                    <button class="user-avatar" id="userAvatar">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <div class="dropdown-menu hidden" id="dropdownMenu">
+                        <a href="#profile" data-i18n="my_profile">My Profile</a>
+                        <a href="#my-bookings" data-i18n="my_bookings">My Bookings</a>
+                        <a href="#my-cars" class="owner-only hidden" data-i18n="my_cars">My Cars</a>
+                        <hr>
+                        <a href="#" id="logoutBtn" data-i18n="logout">Logout</a>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Toggle -->
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">
+                    <span data-i18n="hero_title_1">Rent Your Dream Car</span><br>
+                    <span class="text-accent" data-i18n="hero_title_2">In Libya</span>
+                </h1>
+                <p class="hero-subtitle" data-i18n="hero_subtitle">
+                    The easiest way to rent cars in Tripoli and across Libya. 
+                    From economy to luxury — find your perfect ride with Djera.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#cars" class="btn btn-primary btn-lg" data-i18n="explore_cars">
+                        Explore Cars <i class="fas fa-arrow-right"></i>
+                    </a>
+                    <a href="#how-it-works" class="btn btn-outline btn-lg" data-i18n="learn_more">
+                        How It Works
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Search Box -->
+            <div class="search-box">
+                <div class="search-tabs">
+                    <button class="search-tab active" data-i18n="daily_rental">Daily Rental</button>
+                    <button class="search-tab" data-i18n="weekly_rental">Weekly Rental</button>
+                    <button class="search-tab" data-i18n="monthly_rental">Monthly Rental</button>
+                </div>
+                <div class="search-form">
+                    <div class="search-field">
+                        <i class="fas fa-car"></i>
+                        <select id="searchCategory">
+                            <option value="" data-i18n="all_categories">All Categories</option>
+                            <option value="economy">Economy</option>
+                            <option value="sedan">Sedan</option>
+                            <option value="suv">SUV</option>
+                            <option value="luxury">Luxury</option>
+                            <option value="van">Van</option>
+                            <option value="sports">Sports</option>
+                        </select>
+                    </div>
+                    <div class="search-field">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <select id="searchLocation">
+                            <option value="" data-i18n="all_locations">All Locations</option>
+                            <option value="Tripoli">Tripoli</option>
+                            <option value="Benghazi">Benghazi</option>
+                            <option value="Misrata">Misrata</option>
+                            <option value="Zawiya">Zawiya</option>
+                        </select>
+                    </div>
+                    <div class="search-field">
+                        <i class="fas fa-calendar"></i>
+                        <input type="date" id="searchStartDate" placeholder="Start Date">
+                    </div>
+                    <div class="search-field">
+                        <i class="fas fa-calendar-check"></i>
+                        <input type="date" id="searchEndDate" placeholder="End Date">
+                    </div>
+                    <button class="btn btn-accent" id="searchBtn">
+                        <i class="fas fa-search"></i> <span data-i18n="search">Search</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="hero-stats">
+            <div class="stat-item">
+                <span class="stat-number">500+</span>
+                <span class="stat-label" data-i18n="cars_available">Cars Available</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">50+</span>
+                <span class="stat-label" data-i18n="trusted_owners">Trusted Owners</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">10K+</span>
+                <span class="stat-label" data-i18n="happy_customers">Happy Customers</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">5</span>
+                <span class="stat-label" data-i18n="cities">Cities in Libya</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Cars Section -->
+    <section class="cars-section" id="cars">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag" data-i18n="our_fleet">Our Fleet</span>
+                <h2 data-i18n="featured_cars">Featured Cars</h2>
+                <p data-i18n="featured_desc">Choose from our wide range of vehicles for every need and budget</p>
+            </div>
+            
+            <div class="cars-filter">
+                <button class="filter-btn active" data-filter="all" data-i18n="all">All</button>
+                <button class="filter-btn" data-filter="economy" data-i18n="economy">Economy</button>
+                <button class="filter-btn" data-filter="sedan" data-i18n="sedan">Sedan</button>
+                <button class="filter-btn" data-filter="suv" data-i18n="suv">SUV</button>
+                <button class="filter-btn" data-filter="luxury" data-i18n="luxury">Luxury</button>
+                <button class="filter-btn" data-filter="sports" data-i18n="sports">Sports</button>
+            </div>
+            
+            <div class="cars-grid" id="carsGrid">
+                <!-- Cars will be loaded dynamically -->
+            </div>
+            
+            <div class="section-cta">
+                <button class="btn btn-primary" id="loadMoreCars" data-i18n="view_all">View All Cars</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag" data-i18n="process">Process</span>
+                <h2 data-i18n="how_it_works">How It Works</h2>
+                <p data-i18n="how_desc">Renting a car with Djera is simple and fast</p>
+            </div>
+            
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <span class="step-number">01</span>
+                    <h3 data-i18n="step1_title">Find Your Car</h3>
+                    <p data-i18n="step1_desc">Browse our extensive collection of cars and filter by your preferences — category, price, location, and more.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <span class="step-number">02</span>
+                    <h3 data-i18n="step2_title">Book Online</h3>
+                    <p data-i18n="step2_desc">Select your dates, choose your preferred payment method, and book instantly online.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <span class="step-number">03</span>
+                    <h3 data-i18n="step3_title">Pay Securely</h3>
+                    <p data-i18n="step3_desc">Pay via cash, bank transfer, or secure online payment through Stripe.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-icon">
+                        <i class="fas fa-car-side"></i>
+                    </div>
+                    <span class="step-number">04</span>
+                    <h3 data-i18n="step4_title">Drive Away</h3>
+                    <p data-i18n="step4_desc">Pick up your car at the agreed location and enjoy your ride across Libya!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us -->
+    <section class="why-us" id="about">
+        <div class="container">
+            <div class="why-us-grid">
+                <div class="why-us-content">
+                    <span class="section-tag" data-i18n="why_us_tag">Why Djera</span>
+                    <h2 data-i18n="why_us_title">The Smart Choice for Car Rental in Libya</h2>
+                    <p data-i18n="why_us_desc">
+                        Djera connects car owners with people who need cars — creating a trusted 
+                        marketplace for car rentals across Libya. Whether you're a local needing 
+                        a temporary ride or a visitor exploring the country, we've got you covered.
+                    </p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> <span data-i18n="feature1">Verified car owners and listings</span></li>
+                        <li><i class="fas fa-check-circle"></i> <span data-i18n="feature2">Flexible payment options (Cash, Bank Transfer, Online)</span></li>
+                        <li><i class="fas fa-check-circle"></i> <span data-i18n="feature3">Cars available in multiple Libyan cities</span></li>
+                        <li><i class="fas fa-check-circle"></i> <span data-i18n="feature4">24/7 customer support</span></li>
+                        <li><i class="fas fa-check-circle"></i> <span data-i18n="feature5">Competitive pricing with no hidden fees</span></li>
+                    </ul>
+                    <a href="#contact" class="btn btn-primary" data-i18n="contact_us">Contact Us</a>
+                </div>
+                <div class="why-us-image">
+                    <div class="image-wrapper">
+                        <!-- Decorative car image or illustration -->
+                        <div class="placeholder-image">
+                            <i class="fas fa-car"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag" data-i18n="testimonials_tag">Testimonials</span>
+                <h2 data-i18n="testimonials_title">What Our Customers Say</h2>
+            </div>
+            
+            <div class="testimonials-slider" id="testimonialsSlider">
+                <!-- Testimonials loaded dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section for Car Owners -->
+    <section class="cta-owner">
+        <div class="container">
+            <div class="cta-owner-content">
+                <h2 data-i18n="owner_cta_title">Are You a Car Owner?</h2>
+                <p data-i18n="owner_cta_desc">
+                    List your car on Djera and start earning money. It's free to list and you're in full control.
+                </p>
+                <a href="#" class="btn btn-accent btn-lg" id="listCarBtn" data-i18n="list_your_car">
+                    List Your Car Now <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag" data-i18n="contact_tag">Get In Touch</span>
+                <h2 data-i18n="contact_title">Contact Us</h2>
+                <p data-i18n="contact_desc">Facing a problem? We're here to help!</p>
+            </div>
+            
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <div class="contact-card">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h3 data-i18n="address">Address</h3>
+                        <p>Tripoli, Libya</p>
+                    </div>
+                    <div class="contact-card">
+                        <i class="fas fa-phone"></i>
+                        <h3 data-i18n="phone">Phone</h3>
+                        <p>+218 913583812</p>
+                    </div>
+                    <div class="contact-card">
+                        <i class="fas fa-envelope"></i>
+                        <h3 data-i18n="email">Email</h3>
+                        <p>info@alshoaa.ly</p>
+                    </div>
+                </div>
+                
+                <form class="contact-form" id="contactForm">
+                    <div class="form-group">
+                        <input type="text" placeholder="Your Name" id="contactName" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" placeholder="Email Address" id="contactEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea placeholder="Message" id="contactMessage" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-accent" data-i18n="send_message">
+                        Send Message <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <a href="#" class="footer-logo">
+                        <span class="logo-text">Djera</span>
+                        <span class="logo-dot">.</span>
+                    </a>
+                    <p data-i18n="footer_about">
+                        The leading car rental platform in Libya. Connecting car owners with renters for a seamless experience.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                
+                
+                
+                <div class="footer-col">
+                    <h3 data-i18n="footer_quick">Quick Links</h3>
+                    <ul>
+                        <li><a href="#home" data-i18n="nav_home">Home</a></li>
+                        <li><a href="#cars" data-i18n="nav_cars">Our Cars</a></li>
+                        <li><a href="#how-it-works" data-i18n="nav_how">How It Works</a></li>
+                        <li><a href="#about" data-i18n="nav_about">About Us</a></li>
+                        <li><a href="#contact" data-i18n="nav_contact">Contact</a></li>
+                        <li><a href="#" data-i18n="terms">Terms & Conditions</a></li>
+                        <li><a href="#" data-i18n="privacy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h3 data-i18n="footer_newsletter">Newsletter</h3>
+                    <p data-i18n="newsletter_desc">Subscribe to get the latest updates and offers</p>
+                    <form class="newsletter-form" id="newsletterForm">
+                        <input type="email" placeholder="Enter your email" required>
+                        <button type="submit" class="btn btn-accent" data-i18n="subscribe">SUBSCRIBE</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© <span id="currentYear"></span> <strong>@Alshoaa.ly</strong>. All rights reserved.</p>
+                <p>Powered by <strong>Djera</strong> — Car Rental Libya</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal: Login -->
+    <div class="modal hidden" id="loginModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Close">&times;</button>
+            <h2 data-i18n="login">Login</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label data-i18n="email">Email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="password">Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full" data-i18n="login">Login</button>
+            </form>
+            <p class="form-switch">
+                <span data-i18n="no_account">Don't have an account?</span> 
+                <a href="#" id="switchToRegister" data-i18n="register_here">Register here</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Modal: Register -->
+    <div class="modal hidden" id="registerModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Close">&times;</button>
+            <h2 data-i18n="register">Register</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label data-i18n="full_name">Full Name</label>
+                    <input type="text" id="regName" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="email">Email</label>
+                    <input type="email" id="regEmail" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="phone">Phone</label>
+                    <input type="tel" id="regPhone">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="password">Password</label>
+                    <input type="password" id="regPassword" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="account_type">Account Type</label>
+                    <select id="regRole" required>
+                        <option value="client" data-i18n="client">Client (Rent Cars)</option>
+                        <option value="owner" data-i18n="owner">Car Owner (List Cars)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full" data-i18n="register">Register</button>
+            </form>
+            <p class="form-switch">
+                <span data-i18n="have_account">Already have an account?</span> 
+                <a href="#" id="switchToLogin" data-i18n="login_here">Login here</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Modal: Car Details -->
+    <div class="modal hidden" id="carDetailModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-lg">
+            <button class="modal-close" aria-label="Close">&times;</button>
+            <div id="carDetailContent">
+                <!-- Loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: List Car -->
+    <div class="modal hidden" id="listCarModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-lg">
+            <button class="modal-close" aria-label="Close">&times;</button>
+            <h2>List Your Car</h2>
+            <form id="listCarForm" enctype="multipart/form-data">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Brand</label>
+                        <input type="text" id="carBrand" placeholder="e.g., Toyota" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Model</label>
+                        <input type="text" id="carModel" placeholder="e.g., Camry" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Year</label>
+                        <input type="number" id="carYear" min="2000" max="2026" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="carCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="economy">Economy</option>
+                            <option value="sedan">Sedan</option>
+                            <option value="suv">SUV</option>
+                            <option value="luxury">Luxury</option>
+                            <option value="van">Van</option>
+                            <option value="sports">Sports</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Transmission</label>
+                        <select id="carTransmission" required>
+                            <option value="">Select Transmission</option>
+                            <option value="automatic">Automatic</option>
+                            <option value="manual">Manual</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Fuel Type</label>
+                        <select id="carFuelType" required>
+                            <option value="">Select Fuel Type</option>
+                            <option value="petrol">Petrol</option>
+                            <option value="diesel">Diesel</option>
+                            <option value="electric">Electric</option>
+                            <option value="hybrid">Hybrid</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Seats</label>
+                        <input type="number" id="carSeats" min="1" max="8" value="5">
+                    </div>
+                    <div class="form-group">
+                        <label>Doors</label>
+                        <input type="number" id="carDoors" min="1" max="5" value="4">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Daily Rate ($)</label>
+                        <input type="number" id="carDailyRate" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Weekly Rate ($)</label>
+                        <input type="number" id="carWeeklyRate" step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Monthly Rate ($)</label>
+                        <input type="number" id="carMonthlyRate" step="0.01" min="0">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Location City</label>
+                    <select id="carLocation">
+                        <option value="Tripoli">Tripoli</option>
+                        <option value="Benghazi">Benghazi</option>
+                        <option value="Misrata">Misrata</option>
+                        <option value="Zawiya">Zawiya</option>
+                        <option value="Tobruk">Tobruk</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="carDescription" rows="3" placeholder="Describe your car..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>License Plate</label>
+                        <input type="text" id="carLicensePlate" placeholder="e.g., ABC-123">
+                    </div>
+                    <div class="form-group">
+                        <label>Mileage (km)</label>
+                        <input type="number" id="carMileage" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Color</label>
+                        <input type="text" id="carColor" placeholder="e.g., Black">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Upload Photos (Up to 5 images)</label>
+                    <div class="file-upload">
+                        <input type="file" id="carImages" multiple accept="image/*" maxlength="5">
+                        <div class="file-info">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Click to upload or drag and drop</p>
+                            <span class="file-hint">PNG, JPG, WebP (max 5MB each)</span>
+                        </div>
+                        <div class="image-preview" id="imagePreview"></div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-accent btn-full">List My Car</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Booking -->
+    <div class="modal hidden" id="bookingModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Close">&times;</button>
+            <h2 data-i18n="book_car">Book This Car</h2>
+            <form id="bookingForm">
+                <input type="hidden" id="bookingCarId">
+                <div class="form-group">
+                    <label data-i18n="start_date">Start Date</label>
+                    <input type="date" id="bookingStartDate" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="end_date">End Date</label>
+                    <input type="date" id="bookingEndDate" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="payment_method">Payment Method</label>
+                    <select id="bookingPaymentMethod" required>
+                        <option value="cash" data-i18n="cash">Cash</option>
+                        <option value="bank_transfer" data-i18n="bank_transfer">Bank Transfer</option>
+                        <option value="stripe" data-i18n="stripe">Online Payment (Stripe)</option>
+                    </select>
+                </div>
+                <div class="booking-summary" id="bookingSummary">
+                    <!-- Pricing details loaded dynamically -->
+                </div>
+                <button type="submit" class="btn btn-accent btn-full" data-i18n="confirm_booking">
+                    Confirm Booking
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="js/i18n.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

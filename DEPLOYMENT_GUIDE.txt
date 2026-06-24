@@ -1,0 +1,533 @@
+================================================================================
+                    DJERA CAR RENTAL - DEPLOYMENT GUIDE
+================================================================================
+
+This guide provides step-by-step instructions to deploy the Djera Car Rental
+application locally, on a VPS, or to cloud platforms.
+
+TABLE OF CONTENTS:
+1. Prerequisites
+2. Local Development Setup
+3. Database Configuration
+4. Running the Application
+5. Production Deployment
+6. Troubleshooting
+7. Maintenance
+
+================================================================================
+1. PREREQUISITES
+================================================================================
+
+REQUIRED SOFTWARE:
+- Node.js v16 or higher (download from nodejs.org)
+- PostgreSQL v12 or higher (download from postgresql.org)
+- Git (download from git-scm.com)
+- npm (comes with Node.js)
+
+OPTIONAL:
+- Docker (for containerized deployment)
+- Nginx/Apache (for reverse proxy on production)
+
+CHECK INSTALLATION:
+  node --version
+  npm --version
+  psql --version
+  git --version
+
+================================================================================
+2. LOCAL DEVELOPMENT SETUP
+================================================================================
+
+STEP 1: Clone the Repository
+  git clone <repository-url>
+  cd djera-car-rental
+
+STEP 2: Install Backend Dependencies
+  cd backend
+  npm install
+  cd ..
+
+STEP 3: Install Frontend Dependencies (if using a build tool)
+  cd frontend
+  npm install (optional - static files only needed)
+  cd ..
+
+STEP 4: Create Environment File
+  cd backend
+  cp .env.example .env
+
+  Edit .env with your settings:
+  - DB_HOST=localhost
+  - DB_PORT=5432
+  - DB_NAME=djera_rental
+  - DB_USER=djera_user
+  - DB_PASSWORD=your_secure_password
+  - PORT=5500
+  - NODE_ENV=development
+  - JWT_SECRET=your_super_secret_key_32_chars_minimum_8901234567
+  - STRIPE_PUBLIC_KEY=pk_test_your_key
+  - STRIPE_SECRET_KEY=sk_test_your_key
+
+================================================================================
+3. DATABASE CONFIGURATION
+================================================================================
+
+STEP 1: Create PostgreSQL User
+  psql -U postgres
+
+  In psql prompt:
+  CREATE USER djera_user WITH PASSWORD 'your_secure_password';
+  CREATE DATABASE djera_rental OWNER djera_user;
+  GRANT ALL PRIVILEGES ON DATABASE djera_rental TO djera_user;
+  \q
+
+STEP 2: Initialize Database Schema
+  Option A: Using Node Script
+    cd backend
+    node -e "
+      const { Pool } = require('pg');
+      const fs = require('fs');
+      const pool = new Pool({
+        host: 'localhost',
+        port: 5432,
+        database: 'djera_rental',
+        user: 'djera_user',
+        password: 'your_password'
+      });
+      const schema = fs.readFileSync('./migrations/schema.sql', 'utf8');
+      pool.query(schema).then(() => {
+        console.log('Database initialized!');
+        process.exit(0);
+      }).catch(err => {
+        console.error('Error:', err);
+        process.exit(1);
+      });
+    "
+
+  Option B: Direct SQL
+    psql -U djera_user -d djera_rental -f migrations/schema.sql
+
+STEP 3: Verify Database Setup
+  psql -U djera_user -d djera_rental
+  \dt  (lists all tables)
+  SELECT COUNT(*) FROM users;
+  \q
+
+================================================================================
+4. RUNNING THE APPLICATION
+================================================================================
+
+LOCAL DEVELOPMENT SETUP:
+
+TERMINAL 1 - Start Backend Server:
+  cd backend
+  npm install
+  npm start
+
+  Expected output:
+  🚗 Djera API server running on port 5500
+  📍 Environment: development
+  📦 Connected to PostgreSQL database
+
+TERMINAL 2 - Start Frontend Server:
+  cd frontend
+  python -m http.server 3000
+
+  Or use Node:
+  npm install -g http-server
+  http-server -p 3000
+
+TERMINAL 3 - Monitor Logs (Optional):
+  tail -f backend.log
+
+VERIFY EVERYTHING WORKS:
+  1. Open browser: http://localhost:3000
+  2. Check backend health: curl http://localhost:5500/api/health
+  3. Test registration form
+  4. Check browser console (F12) for errors
+
+================================================================================
+5. PRODUCTION DEPLOYMENT
+================================================================================
+
+OPTION A: DEPLOYMENT TO HEROKU
+================================
+
+PREREQUISITE:
+  npm install -g heroku
+  heroku login
+
+STEPS:
+  1. Create Heroku App:
+     heroku create djera-car-rental
+
+  2. Add PostgreSQL:
+     heroku addons:create heroku-postgresql:hobby-dev
+
+  3. Set Environment Variables:
+     heroku config:set NODE_ENV=production
+     heroku config:set JWT_SECRET=<your-super-secret-key>
+     heroku config:set STRIPE_SECRET_KEY=sk_live_...
+     heroku config:set STRIPE_PUBLIC_KEY=pk_live_...
+
+  4. Create Procfile in root directory:
+     web: cd backend && npm start
+
+  5. Deploy:
+     git push heroku main
+
+  6. Run migrations:
+     heroku run "cd backend && node migrations/init.js"
+
+  7. View logs:
+     heroku logs --tail
+
+  8. Access app:
+     heroku open
+
+OPTION B: DEPLOYMENT TO DIGITALOCEAN / LINODE / AWS
+====================================================
+
+PREREQUISITE:
+  - VPS with Ubuntu 20.04 LTS
+  - SSH access to the server
+  - Domain name (optional)
+
+STEPS:
+
+1. SSH into your server:
+   ssh root@your_server_ip
+
+2. Install Required Software:
+   sudo apt update
+   sudo apt install -y nodejs npm postgresql postgresql-contrib git nginx
+
+3. Create Application Directory:
+   sudo mkdir -p /var/www/djera
+   sudo chown $USER:$USER /var/www/djera
+   cd /var/www/djera
+
+4. Clone Repository:
+   git clone <repo-url> .
+
+5. Setup PostgreSQL:
+   sudo -u postgres psql
+   CREATE USER djera_user WITH PASSWORD 'secure_password';
+   CREATE DATABASE djera_rental OWNER djera_user;
+   GRANT ALL PRIVILEGES ON DATABASE djera_rental TO djera_user;
+   \q
+
+6. Initialize Database:
+   cd /var/www/djera/backend
+   npm install
+   psql -U djera_user -d djera_rental -f migrations/schema.sql
+
+7. Create .env File:
+   cd /var/www/djera/backend
+   nano .env
+
+   Add production settings:
+   NODE_ENV=production
+   DB_HOST=localhost
+   DB_PORT=5432
+   DB_NAME=djera_rental
+   DB_USER=djera_user
+   DB_PASSWORD=secure_password
+   PORT=5500
+   JWT_SECRET=<your-super-long-secret-key>
+
+8. Setup Nginx Reverse Proxy:
+   sudo nano /etc/nginx/sites-available/djera
+
+   Add this configuration:
+   ---
+   server {
+       listen 80;
+       server_name your_domain.com;
+
+       location / {
+           proxy_pass http://localhost:3000;
+           proxy_http_version 1.1;
+           proxy_set_header Upgrade $http_upgrade;
+           proxy_set_header Connection 'upgrade';
+           proxy_set_header Host $host;
+           proxy_cache_bypass $http_upgrade;
+       }
+
+       location /api {
+           proxy_pass http://localhost:5500;
+           proxy_http_version 1.1;
+           proxy_set_header Host $host;
+           proxy_set_header X-Real-IP $remote_addr;
+       }
+   }
+   ---
+
+   Enable:
+   sudo ln -s /etc/nginx/sites-available/djera /etc/nginx/sites-enabled/
+   sudo nginx -t
+   sudo systemctl restart nginx
+
+9. Install SSL Certificate (Recommended):
+   sudo apt install certbot python3-certbot-nginx
+   sudo certbot --nginx -d your_domain.com
+
+10. Setup PM2 for Process Management:
+    sudo npm install -g pm2
+
+    cd /var/www/djera/backend
+    pm2 start npm --name "djera-api" -- start
+    pm2 start "cd /var/www/djera/frontend && python -m http.server 3000" --name "djera-web"
+    pm2 startup
+    pm2 save
+
+11. Verify Setup:
+    pm2 status
+    curl http://localhost:5500/api/health
+
+OPTION C: DOCKER DEPLOYMENT
+===========================
+
+1. Create Dockerfile in root:
+   FROM node:16-alpine
+
+   WORKDIR /app
+   COPY package*.json ./
+   RUN npm install
+   COPY . .
+
+   EXPOSE 5500
+   CMD ["npm", "start"]
+
+2. Create docker-compose.yml:
+   version: '3.8'
+   services:
+     db:
+       image: postgres:13
+       environment:
+         POSTGRES_USER: djera_user
+         POSTGRES_PASSWORD: djera_password
+         POSTGRES_DB: djera_rental
+       volumes:
+         - postgres_data:/var/lib/postgresql/data
+       ports:
+         - "5432:5432"
+
+     api:
+       build: ./backend
+       ports:
+         - "5500:5500"
+       depends_on:
+         - db
+       environment:
+         DB_HOST: db
+         NODE_ENV: production
+
+     web:
+       image: nginx:alpine
+       ports:
+         - "80:80"
+       volumes:
+         - ./frontend:/usr/share/nginx/html
+
+3. Run with Docker:
+   docker-compose up -d
+
+4. Check status:
+   docker-compose ps
+   docker-compose logs -f api
+
+================================================================================
+6. TROUBLESHOOTING
+================================================================================
+
+PROBLEM: "Cannot connect to database"
+SOLUTION:
+  1. Check PostgreSQL is running: sudo service postgresql status
+  2. Verify .env settings match your PostgreSQL config
+  3. Test connection: psql -U djera_user -d djera_rental
+  4. Check password: restart postgres and verify credentials
+
+PROBLEM: "Port already in use"
+SOLUTION:
+  # Find process using port
+  lsof -i :5500
+
+  # Kill process
+  kill -9 <PID>
+
+  # Or change PORT in .env
+
+PROBLEM: "Module not found"
+SOLUTION:
+  cd backend
+  rm -rf node_modules
+  npm install
+
+PROBLEM: "CORS errors"
+SOLUTION:
+  Update FRONTEND_URL in .env to match your domain
+  Restart backend server
+
+PROBLEM: "Database migration failed"
+SOLUTION:
+  1. Check schema.sql syntax
+  2. Drop and recreate database:
+     psql -U postgres -c "DROP DATABASE djera_rental;"
+     psql -U postgres -c "CREATE DATABASE djera_rental OWNER djera_user;"
+  3. Re-run migration
+
+PROBLEM: "Authentication token errors"
+SOLUTION:
+  1. Clear browser localStorage: F12 > Application > LocalStorage > Clear All
+  2. Verify JWT_SECRET is set correctly in .env
+  3. Check token expiration time
+
+PROBLEM: "API returns 500 errors"
+SOLUTION:
+  1. Check backend logs: tail -f backend.log
+  2. Verify database connection
+  3. Check for console errors in Node terminal
+  4. Test with curl:
+     curl -X POST http://localhost:5500/api/auth/register \
+       -H "Content-Type: application/json" \
+       -d '{...}'
+
+================================================================================
+7. MAINTENANCE
+================================================================================
+
+REGULAR TASKS:
+
+Daily:
+  - Monitor error logs
+  - Check database connectivity
+  - Monitor server resources (CPU, RAM, disk)
+
+Weekly:
+  - Backup database: pg_dump -U djera_user djera_rental > backup.sql
+  - Review user registrations
+  - Check for failed transactions
+
+Monthly:
+  - Update npm packages: npm update
+  - Analyze slow queries
+  - Review security logs
+  - Test disaster recovery procedures
+
+DATABASE MAINTENANCE:
+  # Vacuum database
+  sudo -u postgres psql -d djera_rental -c "VACUUM ANALYZE;"
+
+  # Backup database
+  pg_dump -U djera_user djera_rental > backup_$(date +%Y%m%d).sql
+
+  # Restore from backup
+  psql -U djera_user djera_rental < backup_20240529.sql
+
+MONITORING:
+  - Setup log rotation
+  - Configure error tracking (Sentry)
+  - Monitor uptime (Pingdom/UptimeRobot)
+  - Set up alerts for failures
+  - Track performance metrics
+
+SECURITY UPDATES:
+  1. Keep Node.js updated: sudo apt update && sudo apt upgrade nodejs
+  2. Update npm packages: npm audit && npm audit fix
+  3. Renew SSL certificates: sudo certbot renew
+  4. Update system packages: sudo apt update && sudo apt upgrade
+  5. Review user permissions and access
+
+================================================================================
+QUICK REFERENCE
+================================================================================
+
+LOCAL DEVELOPMENT:
+  npm install (in backend)
+  npm start (in backend, on port 5500)
+  python -m http.server 3000 (in frontend, on port 3000)
+
+PRODUCTION:
+  NODE_ENV=production
+  Use strong JWT_SECRET (32+ chars)
+  Use HTTPS/SSL
+  Enable CORS for your domain
+  Setup database backups
+  Monitor logs
+
+DATABASE:
+  psql -U djera_user -d djera_rental
+  \dt (list tables)
+  \d cars (describe table)
+  SELECT * FROM users; (query data)
+
+USEFUL COMMANDS:
+  # Check process
+  ps aux | grep node
+
+  # Kill process
+  kill -9 <PID>
+
+  # View logs
+  tail -f backend/logs.log
+
+  # Restart services
+  sudo systemctl restart nginx
+  pm2 restart all
+
+================================================================================
+SUPPORT & RESOURCES
+================================================================================
+
+Documentation:
+  - Project README: README.md
+  - Development Guide: DEVELOPMENT.md
+  - API Documentation: Check backend/routes/
+
+External Resources:
+  - Node.js: https://nodejs.org/docs/
+  - Express: https://expressjs.com/
+  - PostgreSQL: https://www.postgresql.org/docs/
+  - Nginx: https://nginx.org/en/docs/
+
+Contact:
+  Email: info@alshoaa.ly
+  Issues: GitHub repository
+
+================================================================================
+CHECKLIST FOR PRODUCTION DEPLOYMENT
+================================================================================
+
+Pre-Deployment:
+  [ ] Code tested locally
+  [ ] All environment variables configured
+  [ ] Database backups setup
+  [ ] SSL certificate obtained
+  [ ] Domain DNS configured
+  [ ] Firewall rules configured
+  [ ] API rate limiting enabled
+
+Deployment:
+  [ ] Repository cloned on server
+  [ ] Dependencies installed
+  [ ] Database initialized
+  [ ] Environment variables set
+  [ ] Nginx configured
+  [ ] SSL certificate installed
+  [ ] PM2/systemd configured for auto-restart
+  [ ] Logs configured and monitored
+
+Post-Deployment:
+  [ ] Application accessible via domain
+  [ ] HTTPS working correctly
+  [ ] Registration/login tested
+  [ ] Database working properly
+  [ ] Error logs monitored
+  [ ] Backups running automatically
+  [ ] Monitoring alerts configured
+  [ ] Performance baselines recorded
+
+================================================================================
+                           END OF DEPLOYMENT GUIDE
+================================================================================
